@@ -1,0 +1,12 @@
+.mixin-button(@color;@type){
+  transition:.2s;
+  &:hover{
+    box-shadow:0 5px 20px rgba(0,0,0,.4);
+  }
+  &:active{
+    transform:translate(0,1px);
+    border-color:if((@type="border"),darken(@color,10%),@color);
+    background-color:if((@type="background"),darken(@color,10%));
+
+  }
+}

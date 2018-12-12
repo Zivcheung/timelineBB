@@ -45,7 +45,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     }
   },
   plugins: [
-    new webpack.providePlugin({
+    new webpack.ProvidePlugin({
       "_":'lodash'
     }),
     new webpack.DefinePlugin({
@@ -59,7 +59,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: 'index.html',
-      inject: true
+      inject: true,
     }),
     // copy custom static assets
     new CopyWebpackPlugin([
