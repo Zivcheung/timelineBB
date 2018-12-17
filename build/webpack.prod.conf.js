@@ -29,7 +29,8 @@ const webpackConfig = merge(baseWebpackConfig, {
   },
   plugins: [
     new webpack.providePlugin({
-      "_":'lodash'
+      "_":'lodash',
+      "rq":'axios'
     }),
     // http://vuejs.github.io/vue-loader/en/workflow/production.html
     new webpack.DefinePlugin({

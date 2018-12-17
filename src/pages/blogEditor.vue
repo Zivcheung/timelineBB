@@ -1,42 +1,68 @@
 <template>
-  <div class="timeline-wp">
-    <btn class="tl-bubble" size="medium" color="yellow" icon="icon-wallet" @click="$emit('click')"></btn>
-    <h3 class="tl-title">{{blogInfo.title}}</h3>
-    <transition name="tl-preview">
-      <template class="tl-blg-wp" v-if="showPreview">
-        <div class="tl-blg-preview" >
-          <h3 class="tl-blg-title">{{blogInfo.title}}</h3>
-          <p class="tl-blg-details">{{blogInfo.details}}</p>
-          <p class="tl-blg-abstract">{{blogInfo.article}}</p>
-          <btn type="rect" color="yellow" size="small" @click="openBlogPost($event,blogInfo.id)">More</btn>
+  <transition name="be-animation">
+    <div class="be-wp">
+      <section class="be-blg-wp">
+        <h1 class="be-blg-desc">{{editorTypeWord}}</h1>
+        <input type="text" class="be-blg-title-ip" :placeholder="editorTitleWord"/>
+        <div class="be-blg-tags">
+          <tag v-for="(tag,i) in tags" :key="i">{{tag.name}}</tag>
         </div>
-      </template>
-    </transition>
-    <transition name="tl-dash-am">
-      <template v-if="showPreview">
-        <span class="tl-blg-dash"></span>
-      </template>
-    </transition>
-  </div>
+        <div class="be-blg-editor">
+          <textarea name="content" ref="MDeditor" id="blog-editor-MD" cols="30" rows="10"></textarea>
+          <!-- <mark-down></mark-down> -->
+        </div>
+        <div class="be-ctrl">
+          <btn
+            class="submit-btn"
+            size="medium"
+            icon="icon-duihao"
+            color="yellow"
+            @click="submitBlogEvent"
+          ></btn>
+          <btn class="cancel-btn" size="medium" icon="icon-guanbi" color="white" @click="backToLastPageEvent"></btn>
+        </div>
+      </section>
+      <div class="be-backdrop" @click="backToLastPageEvent"></div>
+    </div>
+  </transition>
 </template>
 
 <script>
-import btn from "./basicElement/btn";
+import btn from "@/components/basicElement/btn";
+import tag from "@/components/basicElement/tag";
+// import SimpleMDE from "simplemde";
+// import markdowneditor from "vue-simplemde/src/markdown-editor";
+
 export default {
-  components: {
-    btn: btn
-  },
   props: {
     blogId: {
       type: String,
-      default: {}
+      default: "emptyBlog"
     },
-    showPreview: {
-      type: Boolean,
-      default: true
+    editorType:{
+      type:String,
+      default:"create"
     }
   },
+  components: {
+    btn: btn,
+    tag: tag
+  },
   data: () => ({
+    tags: [
+      {
+        name: "diary"
+      },
+      {
+        name: "blog"
+      },
+      {
+        name: "short"
+      },
+      {
+        name: "love"
+      }
+    ],
     blogs: [
       {
         id: "019230",
@@ -82,119 +108,130 @@ name: SVG images are scalable, which in an age of increasingly varied viewport s
   }),
   computed: {
     blogInfo() {
+      console.log("pass Editor: " + this.$props.blogId);
       let blog = this.blogs.filter(value => {
         return value.id === this.$props.blogId;
       })[0];
-
-      return blog;
+      return blog || {};
+    },
+    editorTypeWord(){
+      return this.$props.editorType ==="edit"? "Edit Blog":"Create Blog";
+    },
+    editorTitleWord(){
+      return this.$props.editorType ==="edit"? this.blogInfo.title:"Enter Title Here";
     }
-  },
-  watch: {
-    showPreview() {}
   },
   methods: {
-    openBlogPost(e,id) {
-      console.log('pass: '+ id)
-      this.$router.push({name:'blogPost',params:{blogId:id}});
+    backToLastPageEvent() {
+      this.$router.push({ name: "index" });
+    },
+    submitBlogEvent(){
+      let _this= this;
+      // console.log(this.simpleMde.value());
+      // console.log(this.simpleMde.markdown(this.simpleMde.value()));
+
     }
   },
-  created() {
+  mounted() {
+    this.simpleMde = new SimpleMDE({
+      element: document.getElementById("blog-editor-MD"),
+      placeholder:'Please type here to create a new blog  ヽ(￣▽￣)ﾉ',
+      autosave: {
+        enabled: true,
+        uniqueId: this.blogId,
+        delay: 1000
+      },
+      status: ["autosave", "lines", "words"],
+      spellChecker: false,
+      promptURLs: true,
+    });
+  },
+  created(){
+    console.log(this.$props.blogId);
+  },
+  destroyed(){
+    this.simpleMde=null;
   }
 };
 </script>
 
-<style lang="less" scoped>
-@import (less) "../style/mixin/colorPallet.less";
-.timeline-wp {
-  position: relative;
-  display: flex;
-  width: 40%;
-  margin: 30px auto 0;
-  flex-flow: column nowrap;
-  align-items: center;
-  .tl-title {
-    margin: 10px 0 0 0;
-    font-size: 12px;
-    color: white;
-    user-select: none;
-  }
+<style lang="less">
+@import (less) "~style/mixin/colorPallet";
 
-  .tl-bubble {
-    position: relative;
-    z-index: 10;
+.be-blg-wp {
+  position: fixed;
+  top: 100px;
+  left: 0px;
+  right: 0px;
+  z-index: 200 !important;
+  height: 600px;
+  width: 1078px;
+  margin: auto;
+  padding: 40px;
+  border-radius: 50px;
+  background-color: white;
+  .be-blg-desc{
+    color:@blue;
   }
-  /* preview stylings */
-  .tl-blg-preview {
-    position: absolute;
-    z-index: 20;
+  .be-blg-title-ip{
+    display:block;
     box-sizing: border-box;
-    top: -5px;
-    left: 400px;
-    width: 380px;
-    height: 480px;
-    padding: 20px;
-    border-radius: 2px;
-    background-color: white;
-    &:before {
-      position: absolute;
-      left: -14px;
-      top: 20px;
-      z-index: 5;
-      display: block;
-      content: "";
-      border-right: 14px solid white;
-      border-top: 10px solid transparent;
-      border-bottom: 10px solid transparent;
-    }
-    .tl-blg-title {
-      font-size: 24px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 260px;
-      margin: 10px 0 0px;
-      white-space: nowrap;
-    }
-    .tl-blg-details {
-      margin: 5px 0 20px;
-    }
-    .tl-blg-abstract {
-      overflow: hidden;
-      height: 320px;
-      margin-bottom: 6px;
-      text-align: left;
-      line-height: 16px;
-      font-size: 12px;
+    line-height:24px;
+    height:24px;
+    width:300px;
+    margin:20px 0;
+    font-size:24px;
+    border:none;
+    &:focus{
+      outline: none;
+      border-bottom:2px dashed @magenta;
     }
   }
-  .tl-blg-dash {
-    position: absolute;
-    top: 24px;
-    left: 260px;
-    z-index: 1;
+  .be-blg-tags {
+    display: flex;
+    justify-content: center;
+    margin:20px 0;
+  }
+  #blog-editor-MD {
+    overflow: auto;
     display: block;
-    width: 120px;
-    border: rgba(255, 255, 255, 0.6) dashed 1px;
+    width: 60%;
+    height: 340px;
+    padding: 10px;
+    margin: 40px auto 0;
+    border: 0.5px dashed rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    resize: none;
   }
 
-  //* animation */
-  .tl-preview-enter-active,
-  .tl-preview-leave-active {
-    transition: 0.2s;
+  .be-ctrl {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40%;
+    margin: 0px auto 0;
+    .cancel-btn {
+      margin: 0 30px;
+    }
   }
-  .tl-preview-enter,
-  .tl-preview-leave-to {
-    transform-origin: -200px 15px;
-    transform: scale(0);
-    opacity: 0;
-  }
-  .tl-dash-am-enter-active,
-  .tl-dash-am-leave-active {
-    transition: 0.1s;
-  }
-  .tl-dash-am-enter,
-  .tl-dash-am-leave-to {
-    transform: scaleX(0);
-    opacity: 0;
-  }
+}
+.be-backdrop {
+  position: fixed;
+  z-index: 100 !important;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+.be-animation-enter,
+.be-animation-leave-to {
+  opacity: 0;
+}
+.be-animation-enter-active,
+.be-animation-leave-active {
+  position: fixed;
+  z-index: 200 !important;
+  transition: 0.5s;
 }
 </style>

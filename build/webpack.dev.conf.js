@@ -46,7 +46,8 @@ const devWebpackConfig = merge(baseWebpackConfig, {
   },
   plugins: [
     new webpack.ProvidePlugin({
-      "_":'lodash'
+      "_":'lodash',
+      "rq":'axios'
     }),
     new webpack.DefinePlugin({
       'process.env': require('../config/dev.env'),

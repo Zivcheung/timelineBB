@@ -1,42 +1,58 @@
 <template>
-  <div class="timeline-wp">
-    <btn class="tl-bubble" size="medium" color="yellow" icon="icon-wallet" @click="$emit('click')"></btn>
-    <h3 class="tl-title">{{blogInfo.title}}</h3>
-    <transition name="tl-preview">
-      <template class="tl-blg-wp" v-if="showPreview">
-        <div class="tl-blg-preview" >
-          <h3 class="tl-blg-title">{{blogInfo.title}}</h3>
-          <p class="tl-blg-details">{{blogInfo.details}}</p>
-          <p class="tl-blg-abstract">{{blogInfo.article}}</p>
-          <btn type="rect" color="yellow" size="small" @click="openBlogPost($event,blogInfo.id)">More</btn>
+  <transition name="bp-animation">
+    <div class="bp-wp">
+      <section class="bp-blg-wp">
+        <h3 class="bp-blg-title">{{blogInfo.title}}</h3>
+        <p class="bp-blg-details">{{blogInfo.details}}</p>
+        <div class="bp-blg-tags">
+          <tag v-for="(tag,i) in tags" :key="i">{{tag.name}}</tag>
         </div>
-      </template>
-    </transition>
-    <transition name="tl-dash-am">
-      <template v-if="showPreview">
-        <span class="tl-blg-dash"></span>
-      </template>
-    </transition>
-  </div>
+        <p class="bp-blg-content">{{blogInfo.article}}</p>
+        <div class="bp-ctrl">
+          <btn
+            class="retrun-btn"
+            size="medium"
+            icon="icon-fanhui"
+            color="yellow"
+            @click="backIndexPage"
+          ></btn>
+          <btn class="edit-btn" size="small" icon="icon-bianji" color="white" @click="openEditorEvent"></btn>
+        </div>
+      </section>
+      <div class="bp-backdrop" @click="backIndexPage"></div>
+    </div>
+  </transition>
 </template>
 
 <script>
-import btn from "./basicElement/btn";
+import btn from "@/components/basicElement/btn";
+import tag from "@/components/basicElement/tag";
 export default {
-  components: {
-    btn: btn
-  },
   props: {
     blogId: {
       type: String,
-      default: {}
-    },
-    showPreview: {
-      type: Boolean,
-      default: true
+      default: ""
     }
   },
+  components: {
+    btn: btn,
+    tag: tag
+  },
   data: () => ({
+    tags: [
+      {
+        name: "diary"
+      },
+      {
+        name: "blog"
+      },
+      {
+        name: "short"
+      },
+      {
+        name: "love"
+      }
+    ],
     blogs: [
       {
         id: "019230",
@@ -82,119 +98,91 @@ name: SVG images are scalable, which in an age of increasingly varied viewport s
   }),
   computed: {
     blogInfo() {
+      console.log("pass: " + this.$props.blogId);
       let blog = this.blogs.filter(value => {
         return value.id === this.$props.blogId;
       })[0];
-
-      return blog;
+      return blog || {};
     }
-  },
-  watch: {
-    showPreview() {}
   },
   methods: {
-    openBlogPost(e,id) {
-      console.log('pass: '+ id)
-      this.$router.push({name:'blogPost',params:{blogId:id}});
+    backIndexPage() {
+      this.$router.push({ name: "index" });
+    },
+    openEditorEvent(){
+      console.log("editor");
+      console.log(this.blogId);
+
+      this.$router.push({name:"blogEditor",params:{blogId:this.blogId,editorType:"edit"}})
     }
-  },
-  created() {
   }
 };
 </script>
 
 <style lang="less" scoped>
-@import (less) "../style/mixin/colorPallet.less";
-.timeline-wp {
-  position: relative;
-  display: flex;
-  width: 40%;
-  margin: 30px auto 0;
-  flex-flow: column nowrap;
-  align-items: center;
-  .tl-title {
-    margin: 10px 0 0 0;
-    font-size: 12px;
-    color: white;
-    user-select: none;
+.bp-blg-wp {
+  position: fixed;
+  top: 100px;
+  left: 0px;
+  right: 0px;
+  z-index: 200 !important;
+  height: 600px;
+  width: 1078px;
+  margin: auto;
+  padding: 40px;
+  border-radius: 50px;
+  background-color: white;
+  .bp-blg-title {
+    font-size: 24px;
+    font-weight: 900;
+  }
+  .bp-blg-details {
+    margin-top: 10px;
+  }
+  .bp-blg-tags {
+    display: flex;
+    justify-content: center;
+  }
+  .bp-blg-content {
+    overflow: auto;
+    width: 60%;
+    height: 340px;
+    padding: 10px;
+    border: 0.5px dashed rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    margin: 40px auto 0;
   }
 
-  .tl-bubble {
-    position: relative;
-    z-index: 10;
-  }
-  /* preview stylings */
-  .tl-blg-preview {
-    position: absolute;
-    z-index: 20;
-    box-sizing: border-box;
-    top: -5px;
-    left: 400px;
-    width: 380px;
-    height: 480px;
-    padding: 20px;
-    border-radius: 2px;
-    background-color: white;
-    &:before {
-      position: absolute;
-      left: -14px;
-      top: 20px;
-      z-index: 5;
-      display: block;
-      content: "";
-      border-right: 14px solid white;
-      border-top: 10px solid transparent;
-      border-bottom: 10px solid transparent;
-    }
-    .tl-blg-title {
-      font-size: 24px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 260px;
-      margin: 10px 0 0px;
-      white-space: nowrap;
-    }
-    .tl-blg-details {
-      margin: 5px 0 20px;
-    }
-    .tl-blg-abstract {
-      overflow: hidden;
-      height: 320px;
-      margin-bottom: 6px;
-      text-align: left;
-      line-height: 16px;
-      font-size: 12px;
+  .bp-ctrl {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40%;
+    margin: 50px auto 0;
+    .edit-btn {
+      margin: 0 30px;
     }
   }
-  .tl-blg-dash {
-    position: absolute;
-    top: 24px;
-    left: 260px;
-    z-index: 1;
-    display: block;
-    width: 120px;
-    border: rgba(255, 255, 255, 0.6) dashed 1px;
-  }
-
-  //* animation */
-  .tl-preview-enter-active,
-  .tl-preview-leave-active {
-    transition: 0.2s;
-  }
-  .tl-preview-enter,
-  .tl-preview-leave-to {
-    transform-origin: -200px 15px;
-    transform: scale(0);
-    opacity: 0;
-  }
-  .tl-dash-am-enter-active,
-  .tl-dash-am-leave-active {
-    transition: 0.1s;
-  }
-  .tl-dash-am-enter,
-  .tl-dash-am-leave-to {
-    transform: scaleX(0);
-    opacity: 0;
-  }
+}
+.bp-backdrop {
+  position: fixed;
+  z-index: 100 !important;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(49px);
+  -webkit-backdrop-filter: blur(49px);
+}
+.bp-animation-enter,
+.bp-animation-leave-to {
+  opacity: 0;
+}
+.bp-animation-enter-active,
+.bp-animation-leave-active {
+  position: fixed;
+  z-index: 200 !important;
+  transition: .5s;
 }
 </style>
