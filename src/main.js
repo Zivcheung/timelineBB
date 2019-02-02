@@ -3,8 +3,13 @@
 import Vue from 'vue';
 import App from './App';
 import router from './router';
+import firebase from './firebase.js'
+import axios from "axios"
+
+
 
 Vue.config.productionTip = false;
+Vue.prototype.$firebase = firebase;
 
 /* eslint-disable no-new */
 new Vue({
@@ -12,4 +17,10 @@ new Vue({
   router,
   components: { App },
   template: '<App/>',
+  mounted(){
+    let self = this
+    window.onload =function() {
+      self.$router.push({name:"index"});
+    }
+  }
 });

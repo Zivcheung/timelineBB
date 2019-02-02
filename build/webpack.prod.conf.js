@@ -28,7 +28,7 @@ const webpackConfig = merge(baseWebpackConfig, {
     chunkFilename: utils.assetsPath('js/[id].[chunkhash].js')
   },
   plugins: [
-    new webpack.providePlugin({
+    new webpack.ProvidePlugin({
       "_":'lodash',
       "rq":'axios'
     }),
@@ -39,7 +39,8 @@ const webpackConfig = merge(baseWebpackConfig, {
     new UglifyJsPlugin({
       uglifyOptions: {
         compress: {
-          warnings: false
+          warnings: false,
+          drop_console:true
         }
       },
       sourceMap: config.build.productionSourceMap,

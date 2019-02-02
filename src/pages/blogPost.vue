@@ -1,23 +1,28 @@
 <template>
   <transition name="bp-animation">
-    <div class="bp-wp">
-      <section class="bp-blg-wp">
-        <h3 class="bp-blg-title">{{blogInfo.title}}</h3>
-        <p class="bp-blg-details">{{blogInfo.details}}</p>
-        <div class="bp-blg-tags">
-          <tag v-for="(tag,i) in tags" :key="i">{{tag.name}}</tag>
-        </div>
-        <p class="bp-blg-content">{{blogInfo.article}}</p>
-        <div class="bp-ctrl">
-          <btn
-            class="retrun-btn"
-            size="medium"
-            icon="icon-fanhui"
-            color="yellow"
-            @click="backIndexPage"
-          ></btn>
-          <btn class="edit-btn" size="small" icon="icon-bianji" color="white" @click="openEditorEvent"></btn>
-        </div>
+    <div class="bp-wp" >
+      <section class="bp-blg-wp" >
+        <template v-if="loading">
+          <h3 class="bp-blg-title">{{blogPreview.name}}</h3>
+          <p class="bp-blg-details">{{blogPreview.createTime}}</p>
+          <!-- <div class="bp-blg-tags">
+            <tag v-for="(tag,i) in tags" :key="i">{{tag.name}}</tag>
+          </div> -->
+          <p class="bp-blg-content" v-html="blogPreview.contentHtml"></p>
+          <div class="bp-ctrl">
+            <btn
+              class="retrun-btn"
+              size="medium"
+              icon="icon-fanhui"
+              color="yellow"
+              @click="backIndexPage"
+            ></btn>
+            <btn class="edit-btn" size="small" icon="icon-bianji" color="white" @click="openEditorEvent"></btn>
+          </div>
+        </template>
+        <template v-else>
+            <loading class="editor-loading" :style-config="loadingStyle"></loading>
+        </template>
       </section>
       <div class="bp-backdrop" @click="backIndexPage"></div>
     </div>
@@ -27,6 +32,10 @@
 <script>
 import btn from "@/components/basicElement/btn";
 import tag from "@/components/basicElement/tag";
+import loading from "@/components/basicElement/loading"
+import util from "../util/util.js";
+import converter from"../mdConverter.js";
+import {Base64} from "js-base64"
 export default {
   props: {
     blogId: {
@@ -36,74 +45,18 @@ export default {
   },
   components: {
     btn: btn,
-    tag: tag
+    tag: tag,
+    loading
   },
   data: () => ({
-    tags: [
-      {
-        name: "diary"
-      },
-      {
-        name: "blog"
-      },
-      {
-        name: "short"
-      },
-      {
-        name: "love"
-      }
-    ],
-    blogs: [
-      {
-        id: "019230",
-        blogType: "article",
-        title: "Best of the Best",
-        details: "November 1, 2016",
-        article: `
-name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition. name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition.`
-      },
-      {
-        id: "0192230",
-        blogType: "article",
-        title: "Best of the Best",
-        details: "November 2, 2016",
-        article: `
-name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition. name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition.`
-      },
-      {
-        id: "019243s0",
-        blogType: "article",
-        title: "Best of the Best",
-        details: "November 3, 2016",
-        article: `
-name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition. name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition.`
-      },
-      {
-        id: "0193230",
-        blogType: "article",
-        title: "Best of the Best",
-        details: "November 4, 2016",
-        article: `
-name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition. name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition.`
-      },
-      {
-        id: "0192223s0",
-        blogType: "article",
-        title: "Best of the Best",
-        details: "November 5, 2016",
-        article: `
-name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition. name: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations to Cname: SVG images are scalable, which in an age of increasingly varied viewport sizes is a huge boon to development. With SVG we have one graphic to rule them all that scales to all devices, and therefore can save us from subsequent HTTP requests. Even the newer CSS properties such as srcset and picture require different Drasner, Sarah. SVG Animations: From Common UX Implementations toomplex Responsive Animation (p. 1). O'Reilly Media. Kindle Edition.`
-      }
-    ]
+    loading:false,
+    loadingStyle:{
+      color:"rgb(255, 200, 0)",
+      radius:"80px",
+    },
+    blogPreview:{}
   }),
   computed: {
-    blogInfo() {
-      console.log("pass: " + this.$props.blogId);
-      let blog = this.blogs.filter(value => {
-        return value.id === this.$props.blogId;
-      })[0];
-      return blog || {};
-    }
   },
   methods: {
     backIndexPage() {
@@ -112,9 +65,32 @@ name: SVG images are scalable, which in an age of increasingly varied viewport s
     openEditorEvent(){
       console.log("editor");
       console.log(this.blogId);
-
-      this.$router.push({name:"blogEditor",params:{blogId:this.blogId,editorType:"edit"}})
+      this.$router.push({name:"blogEditor",params:{blogData:Object.assign({},{id:this.blogId},this.blogPreview),editorType:"edit"}})
     }
+  },
+  mounted(){
+    let user = this.$firebase.auth().currentUser;
+
+    util.getBlog({},"/blogs/"+user.uid+"/"+this.blogId+".json")
+    .then((res)=>{
+      let data = res.data;
+      let blogContent = Base64.decode(data.content.match(/base64,(.*)$/)[1]);
+      let contentHtml = converter.makeHtml(blogContent);
+      let date = new Date(data.createTime);
+      this.blogPreview={
+        name:data.name,
+        createTime:date.toLocaleString(), // todo
+        contentHtml:contentHtml,
+        contentMd:blogContent
+      }
+      this.loading=true;
+    })
+    .catch((err)=>{
+      alert(`
+        请联系管理员：
+        ${err}
+      `);
+    });
   }
 };
 </script>
@@ -143,14 +119,23 @@ name: SVG images are scalable, which in an age of increasingly varied viewport s
     display: flex;
     justify-content: center;
   }
+  .editor-loading{
+    position:absolute;    
+    top:0;
+    bottom:0;
+    right:0;
+    left:0;
+    margin:auto;
+  }
   .bp-blg-content {
     overflow: auto;
-    width: 60%;
+    width: 90%;
     height: 340px;
     padding: 10px;
     border: 0.5px dashed rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     margin: 40px auto 0;
+    overflow:auto;
   }
 
   .bp-ctrl {

@@ -1,43 +1,65 @@
 <template>
   <div class="index-menu-wp">
     <div class="center-btn" :class="{'open':isOpen}" @click="openMenuEvent">
-    </div>
-    <btn
+      <btn
       class="sub-button sub-button-idx1"
       :class="{'open':isOpen}"
       color="white"
       icon="icon-icon19"
-    ></btn>
-    <btn
-      class="sub-button sub-button-idx2"
-      :class="{'open':isOpen}"
-      color="white"
-      icon="icon-seeuser"
-    ></btn>
-    <btn
-      class="sub-button sub-button-idx3"
-      :class="{'open':isOpen}"
-      color="white"
-      icon="icon-icmusicnotepx"
-    ></btn>
+      :disabled="true"
+      ></btn>
+      <btn
+        class="sub-button sub-button-idx2"
+        :class="{'open':isOpen}"
+        color="white"
+        icon="icon-seeuser"
+        @click="loginClickEvent"
+      ></btn>
+      <btn
+        class="sub-button sub-button-idx3"
+        :class="{'open':isOpen}"
+        color="white"
+        icon="icon-icmusicnotepx"
+        @click="openMusicPlayer"
+      ></btn>
+    </div>
   </div>
 </template>
 
 <script>
+import bus from "../eventBus.js"
 import btn from "./basicElement/btn.vue";
 export default {
   data: () => ({
-    isOpen: false
+    isOpen: false,
+    musicOpen:false,
   }),
   components: {
     btn: btn
   },
   methods: {
+    openMusicPlayer(){
+      if(!this.musicOpen){
+        this.musicOpen=true;
+        bus.$emit("playerOpen");
+      }else{
+        this.musicOpen=false;
+        bus.$emit("playerOpen");        
+      }
+    },
     openMenuEvent(e) {
       this.isOpen = !this.isOpen;
     },
     closeMenuEvent(){
       this.isOpen = false;
+    },
+    loginClickEvent(){
+      let user = this.$firebase.auth().currentUser;
+      if(user){
+        this.$router.push({name:'logout'})
+      }else{
+        this.$router.push({name:'login'});
+      }
     }
   },
 
@@ -50,9 +72,15 @@ export default {
 .index-menu-wp {
   position: relative;
   margin-top: 20px;
+  .spotify{
+    position:absolute;
+    z-index:100;
+    width:100px;
+    height:100px;
+  }
   .center-btn {
     position: relative;
-    z-index: 2;
+    z-index: 3;
     box-sizing: border-box;
     margin: auto;
     width: 100px;
@@ -83,16 +111,18 @@ export default {
 }
 .sub-button {
   position: absolute;
-  z-index: 2;
-  top: 0;
+  z-index: 1;
+  top: -30px;
   left: 50%;
   margin: 25px -25px;
   opacity: 0;
   transition: 0.2s;
+  pointer-events: none;
   
 
   &.open {
     opacity: 1;
+    pointer-events:auto;
   }
   &.sub-button-idx1.open {
     transform: translate(-106px, 106px);

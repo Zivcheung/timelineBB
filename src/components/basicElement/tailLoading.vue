@@ -70,7 +70,7 @@ export default {
     background-color: fade(white, 50%);
   }
   &.nohover{
-    cursor:auto;
+    pointer-events: none;
   }
 }
 </style>

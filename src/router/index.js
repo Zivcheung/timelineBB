@@ -3,6 +3,10 @@ import Router from 'vue-router';
 import Index from "@/pages/index";
 import BlogPost from "@/pages/blogPost";
 import BlogEditor from "@/pages/blogEditor";
+import LoginPage from "@/pages/loginPage";
+import SignupPage from "@/pages/signUpPage";
+import LogoutPage from "@/pages/logoutPage"
+
 
 Vue.use(Router);
 
@@ -32,8 +36,28 @@ export default new Router({
             'blogEditor':BlogEditor
           },
           props:{blogEditor:true}
-        }
+        },
+        
       ]
+    },
+    {
+      path:'/login',
+      name:'login',
+      component:LoginPage
+    },
+    {
+      path:'/signup',
+      name:'signup',
+      component:SignupPage
+    },
+    {
+      path:'/logout',
+      name:'logout',
+      component:LogoutPage
+    },
+    {
+      path: '/*',
+      redirect: '/index'
     },
   ],
 });
